@@ -32,11 +32,6 @@ server.listen(3000,()=>{
 node ./server.js
 ```
 
-### 使用nginx部署
-
-> 为什么使用Nginx
-> 通过 nginx 进行路由转发至不同的服务，这也就是反向代理，另外 TLS、GZIP、HTTP2 等诸多功能，也需要使用 nginx 进行配置。
-
 ### 使用Docker部署
 
 > 为什么使用Docker
@@ -52,6 +47,7 @@ node ./server.js
 # -t xxx 指定镜像名称
 # . 表示从当前目录下构建镜像
 # -f xxx 指定镜像配置文件
+# --progress plain 查看输出结果
 docker build -t simple-app . -f node.Dockerfile
 # 启动容器
 # --rm 容器停止运行时自动删除
@@ -62,6 +58,11 @@ docker run --rm -p 3000:3000 simple-app
 docker images
 ```
 
+> 构建镜像 RUN 输出查看
+> 在使用 docker build 进行构建时，通过 RUN 指令可以通过打印一些关键信息进行调试，
+> 但是，在我们进行 docker build 时，无法查看其输出结果。
+> 此时可以通过 --progress plain 来查看其输出结果。
+
 #### 方式二：使用docker-compose
 
 编写docker-compose.yaml
@@ -71,8 +72,42 @@ docker images
 docker-compose up --build
 ```
 
-> 构建镜像 RUN 输出查看
-> 在使用 docker build 进行构建时，通过 RUN 指令可以通过打印一些关键信息进行调试，
-> 但是，在我们进行 docker build 时，无法查看其输出结果。
-> 此时可以通过 --progress plain 来查看其输出结果。
+### 使用nginx部署
 
+> 为什么使用Nginx
+> 通过 nginx 进行路由转发至不同的服务，这也就是反向代理，另外 TLS、GZIP、HTTP2 等诸多功能，也需要使用 nginx 进行配置。
+
+#### 基于nginx镜像构建容器
+
+先了解一下nginx配置文件
+
+```
+server {
+    listen       80;
+    server_name  localhost;
+
+    location / {
+        root   /usr/share/nginx/html;
+        index  index.html index.htm;
+    }
+
+    error_page   500 502 503 504  /50x.html;
+    location = /50x.html {
+        root   /usr/share/nginx/html;
+    }
+}
+```
+
+可以看到监听`80`端口，为 `/usr/share/nginx/html` 目录做静态资源服务。
+
+那么我们可以把我们的静态文件写入到 `/usr/share/nginx/html` 目录下，就能正确部署了。
+
+编写`nginx.Dockerfile`
+
+```
+FROM nginx:alpine
+
+ADD index.html /usr/share/nginx/html/
+```
+
+修改`docker-compose.yaml`，使用`docker-compose up --build`构建并启动镜像。
