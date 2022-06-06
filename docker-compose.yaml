@@ -1,0 +1,9 @@
+version: "3"
+services:
+  simple-app:
+    # build:从当前路径构建镜像
+    build:
+      context: .
+      dockerfile: node.Dockerfile
+    ports:
+      - 4000:3000
