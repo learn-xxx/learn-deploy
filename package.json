@@ -2,14 +2,17 @@
   "name": "simple-deploy",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "server.js",
   "scripts": {
-    "start": "serve . -p 3000"
+    "serve":"node server.js",
+    "start": "serve . -p 3000",
+    "my-serve": "node ./mini-serve/index.js ./mini-serve/example --port 4000"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "arg": "^5.0.2",
     "serve": "^13.0.2"
   }
 }
