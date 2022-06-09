@@ -1,0 +1,8 @@
+version: "3"
+services:
+  single-app:
+    build:
+      context: .
+      dockerfile: simple.Dockerfile
+    ports:
+      - 5200:80
