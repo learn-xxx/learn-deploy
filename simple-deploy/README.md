@@ -115,3 +115,17 @@ ADD index.html /usr/share/nginx/html/
 ```
 
 修改`docker-compose.yaml`，使用`docker-compose up --build`构建并启动镜像。
+
+### 相关问题
+
+- 如何设置正确的 Content-Length？（上述代码已给出）
+- 继续完善静态服务器，使其作为一个命令行工具，支持指定端口号、读取目录、404、stream (甚至 trailingSlash、cleanUrls、rewrite、redirect 等)。可参考 [serve-handler](https://github.com/vercel/serve-handler)。
+  - 实现：[mini-serve](https://github.com/Merlin218/simple-deploy/tree/master/mini-serve)
+- 什么是 rewrite 和 redirect
+  - Rewrite: 假设 /a 页面需要重写到 /b 页面。用户向服务器请求 /a 页面，服务器扔给用户 /b 的页面内容。
+  - Redirect: 假设 /a 页面需要重定向到 /b 页面。用户向服务器请求 /a 页面，服务器告诉用户，你去请求 /b 页面。并扔给了用户一个 301/302 的状态码和一个指向 /b 页面的 location header。用户又去向 /b 页面发送了请求。
+  - 其中，用户指 user-agent，比如浏览器、curl，前端来说，比如 fetch、axios 等。
+- 我们为什么可以直接在 node 镜像中使用 yarn 命令行工具
+  - 在官方镜像中，集成了对yarn的安装
+  - [官方镜像Dockerfile文件源码](https://github.com/nodejs/docker-node/blob/90065897cdca681a20c3383f28b436bc2434928f/18/alpine3.15/Dockerfile)
+
