@@ -324,3 +324,6 @@ http {
 ```
 
 > gzip和brotli的区别？
+
+> 参考链接
+> [为 Docker 中的 Nginx 启用 Brotli 压缩算法](https://www.iszy.cc/posts/e/)
