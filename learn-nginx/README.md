@@ -324,6 +324,11 @@ http {
 ```
 
 > gzip和brotli的区别？
+> - `content-encoding`
+>   - `gzip`压缩：gzip
+>   - `brotli`压缩：br
+> - brotli 压缩方式有更好的压缩率，但是在参数调优的情况下，差距变小
+> - gzip内置在nginx中，brotli需要进行编译安装
 
 > 参考链接
 > [为 Docker 中的 Nginx 启用 Brotli 压缩算法](https://www.iszy.cc/posts/e/)
