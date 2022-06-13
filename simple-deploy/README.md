@@ -62,6 +62,9 @@ docker run --rm -p 3000:3000 simple-app
 docker images
 ```
 
+> 我们的基础镜像 tag 总是携带 `alpine`，它是什么？
+> alpine 操作系统是一个面向安全的轻型 Linux 发行。相比于其他镜像体积更小，运行时占用的资源更小。
+
 > 构建镜像 RUN 输出查看
 > 在使用 docker build 进行构建时，通过 RUN 指令可以通过打印一些关键信息进行调试，
 > 但是，在我们进行 docker build 时，无法查看其输出结果。
