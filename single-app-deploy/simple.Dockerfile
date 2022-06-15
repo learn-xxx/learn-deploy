@@ -11,4 +11,7 @@ ADD . /code
 RUN npm run build
 
 FROM nginx:alpine
+# 设置nginx配置
+ADD nginx.conf /etc/nginx/conf.d/default.conf
+# 项目资源文件
 COPY --from=builder code/dist /usr/share/nginx/html

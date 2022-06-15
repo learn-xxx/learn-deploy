@@ -49,3 +49,33 @@ services:
     ports:
       - 5200:80
 ```
+
+# nginx配置及长期缓存优化
+
+因为我们部署的是单页面应用，路由的跳转是交给前端`history API`去控制的，在后端并没有相对应的路由资源，如果没有进行配置，自然会返回服务器提供的404页面。
+
+解决方法也很简单：在服务端将所有页面路由均指向 index.html，而单页应用再通过 history API 控制当前路由显示哪个页面。 这也是静态资源服务器的重写(Rewrite)功能。我们可以在nginx配置文件中添加如下内容：
+
+```conf
+    location / {
+        # 如果资源不存在，则返回index.html
+        try_files $uri $uri/ /index.html;
+    }
+```
+
+另外，我们打包后的资源通常带有hash值，我们可以为他们设置长期缓存，但hash值发生改变时，会导致缓存失效，服务器会重新将资源返回给客户端，否则客户端会从缓存中读取资源。
+
+```conf
+    location / {
+        # 如果资源不存在，则返回index.html
+        try_files $uri $uri/ /index.html;
+        # 对不带hash的资源，设置协商缓存，Cache-Control: no-cache，每次请求会校验新鲜度
+        expires -1;
+    }
+    
+    # 对于带hash的资源，设置长期缓存
+    location /assets {
+       # 设置一年的强缓存
+      expires 1y;
+    }
+```
