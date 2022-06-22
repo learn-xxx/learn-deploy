@@ -8,8 +8,5 @@ services:
         - ACCESS_KEY_ID
         - ACCESS_KEY_SECRET
         - ENDPOINT
-    env_file:
-      - .env
-      - .env.local
     ports:
       - 5200:80

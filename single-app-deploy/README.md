@@ -101,6 +101,15 @@ services:
 - vite `base`
 - ...
 
+### 设置环境变量
+
+```shell
+export ACCESS_KEY_SECRET=xxx
+export ACCESS_KEY_SECRET=xxx
+```
+
+> 可以使用`docker-compose config`验证配置是否读取到环境变量
+
 ### 资源的上传方式
 
 #### 方式一：使用官方命令行工具`ossutil`，通过命令行进行资源的上传
@@ -154,6 +163,23 @@ FROM nginx:alpine
 ADD nginx.conf /etc/nginx/conf.d/default.conf
 # 项目资源文件
 COPY --from=builder code/dist /usr/share/nginx/html
+```
+
+配置`docker-compose`
+
+```yaml
+version: "3"
+services:
+  single-app:
+    build:
+      context: .
+      dockerfile: simple.Dockerfile
+      args:
+        - ACCESS_KEY_ID
+        - ACCESS_KEY_SECRET
+        - ENDPOINT
+    ports:
+      - 5200:80
 ```
 
 #### 方式二：使用官方sdk包 `ali-oss` ，对资源进行精准控制
