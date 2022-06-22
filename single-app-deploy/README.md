@@ -28,7 +28,7 @@ ADD . /code
 RUN npm run build
 ```
 
-# 第二阶段：部署
+### 第二阶段：部署
 
 ```yaml
 # 选择nginx镜像
@@ -56,7 +56,7 @@ services:
 > - 多阶段构建的最大意义：能够将前置阶段中的文件拷贝到后边的阶段。我们还可以直接对已有的镜像进行拷贝。
 > - 最大的使用场景是将编译环境和运行环境分离，可以使我们构建的最终产物最小化。
 
-# nginx配置及长期缓存优化
+## nginx配置及长期缓存优化
 
 因为我们部署的是单页面应用，路由的跳转是交给前端`history API`去控制的，在后端并没有相对应的路由资源，如果没有进行配置，自然会返回服务器提供的404页面。
 
@@ -90,3 +90,87 @@ services:
 > - 因为hash是根据文件内容计算生成的，但hash发生改变意味着文件内容发生改变。当一个文件发生改变，文件名中的hash也必将改变。
 > - 我们设置强缓存，当请求一个资源文件时，如果本地的缓存hash匹配成功，说明该文件没有发生改变，自然可以直接使用缓存。
 > - 当本地的缓存hash匹配不成功或不存在该文件时，说明客户端自然也会向服务器发送请求，服务器会返回相对应的资源。
+
+## 静态资源部署到OSS/CDN
+
+### 处理打包文件路径
+
+修改为目标地址。
+
+- webpack `publicPath`
+- vite `base`
+- ...
+
+### 资源的上传方式
+
+#### 方式一：使用官方命令行工具`ossutil`，通过命令行进行资源的上传
+
+[ossutil安装](https://help.aliyun.com/document_detail/120075.htm)
+[ossutil文档](https://help.aliyun.com/document_detail/50452.html)
+
+##### 配置`packgae.json`中脚本命令
+
+```json
+{
+  "scripts":{
+    // 先上传全部资源，设置为协商缓存；之后再对带hash的资源设置为强缓存
+    "oss:cli": "ossutil cp -rf --meta Cache-Control:no-cache dist oss://single-app-deploy/ && ossutil cp -rf --meta Cache-Control:max-age=31536000 dist/assets oss://single-app-deploy/assets",
+  }
+}
+```
+
+此处资源分为两种，需要分别定义缓存机制：
+- 带有 hash 的资源一年长期缓存
+- 非带 hash 的资源，需要配置 Cache-Control: no-cache，避免浏览器默认为强缓存
+
+##### 配置`Dockerfile`
+
+```Dockerfile
+FROM node:14-alpine as builder
+
+# 通过命令号 --build-arg 或者 docker-compose 配置 build.args 传入变量
+ARG ACCESS_KEY_ID
+ARG ACCESS_KEY_SECRET
+ARG ENDPOINT
+ENV PUBLIC_URL http://cdn.merlin218.top/
+
+WORKDIR /code
+
+# 安装ossutil工具，配置文件执行权限，并设置资源上传配置
+RUN wget http://gosspublic.alicdn.com/ossutil/1.7.7/ossutil64 -O /usr/local/bin/ossutil \
+  && chmod 755 /usr/local/bin/ossutil \
+  && ossutil config -i $ACCESS_KEY_ID -k $ACCESS_KEY_SECRET -e $ENDPOINT
+
+# 单独分离 package.json，是为了安装依赖可最大限度利用缓存
+ADD package.json yarn.lock /code/
+RUN yarn
+
+ADD . /code
+# 执行项目打包和文件的上传
+RUN npm run build && npm run oss:cli
+
+FROM nginx:alpine
+# 设置nginx配置
+ADD nginx.conf /etc/nginx/conf.d/default.conf
+# 项目资源文件
+COPY --from=builder code/dist /usr/share/nginx/html
+```
+
+#### 方式二：使用官方sdk包 `ali-oss` ，对资源进行精准控制
+
+[ali-oss文档](https://www.alibabacloud.com/help/zh/object-storage-service/latest/node-js-installation#concept-32068-zh)
+
+1. 对每一条资源进行精准控制
+2. 仅仅上传变更的文件
+3. 使用`p-queue`控制 N 个资源同时上传
+
+```json
+{
+  "scripts":{
+    "oss:script": "node ./scripts/uploadOSS.mjs -t dist -h dist/assets -b single-app-deploy -r oss-cn-hangzhou",
+  }
+}
+```
+
+具体代码见[uploadOSS](https://github.com/Merlin218/learn-deploy/tree/master/single-app-deploy/scripts/uploadOSS.mjs)
+

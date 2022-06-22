@@ -1,18 +1,24 @@
 {
-  "name": "single-app-deploy",
-  "private": true,
-  "version": "0.0.0",
-  "scripts": {
-    "dev": "vite",
-    "build": "vite build",
-    "preview": "vite preview"
-  },
   "dependencies": {
     "vue": "^3.2.25",
     "vue-router": "^4.0.16"
   },
   "devDependencies": {
     "@vitejs/plugin-vue": "^2.3.3",
+    "ali-oss": "^6.17.1",
+    "arg": "^5.0.2",
+    "p-queue": "^7.2.0",
+    "readdirp": "^3.6.0",
     "vite": "^2.9.9"
-  }
+  },
+  "name": "single-app-deploy",
+  "private": true,
+  "scripts": {
+    "build": "vite build",
+    "dev": "vite",
+    "oss:cli": "ossutil cp -rf --meta Cache-Control:no-cache dist oss://single-app-deploy/ && ossutil cp -rf --meta Cache-Control:max-age=31536000 dist/assets oss://single-app-deploy/assets",
+    "oss:script": "node ./scripts/uploadOSS.mjs -t dist -h dist/assets -b single-app-deploy -r oss-cn-hangzhou",
+    "preview": "vite preview"
+  },
+  "version": "0.0.0"
 }

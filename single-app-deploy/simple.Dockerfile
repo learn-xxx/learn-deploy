@@ -1,14 +1,25 @@
 FROM node:14-alpine as builder
 
+# 通过命令号 --build-arg 或者 docker-compose 配置 build.args 传入变量
+ARG ACCESS_KEY_ID
+ARG ACCESS_KEY_SECRET
+ARG ENDPOINT
+ENV PUBLIC_URL http://cdn.merlin218.top/
+
 WORKDIR /code
 
-# 分离package.json，是未来安装依赖可最大限度利用缓存
+# 安装ossutil工具，配置文件执行权限，并设置资源上传配置
+RUN wget http://gosspublic.alicdn.com/ossutil/1.7.7/ossutil64 -O /usr/local/bin/ossutil \
+  && chmod 755 /usr/local/bin/ossutil \
+  && ossutil config -i $ACCESS_KEY_ID -k $ACCESS_KEY_SECRET -e $ENDPOINT
+
+# 单独分离 package.json，是为了安装依赖可最大限度利用缓存
 ADD package.json yarn.lock /code/
-# 此时yarn可以利用缓存，如果yarn.lock没有更新，则不会重新依赖安装
 RUN yarn
 
 ADD . /code
-RUN npm run build
+# 执行项目打包和文件的上传
+RUN npm run build && npm run oss:cli
 
 FROM nginx:alpine
 # 设置nginx配置
