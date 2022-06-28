@@ -117,7 +117,7 @@ export ACCESS_KEY_SECRET=xxx
 [ossutil安装](https://help.aliyun.com/document_detail/120075.htm)
 [ossutil文档](https://help.aliyun.com/document_detail/50452.html)
 
-##### 配置`packgae.json`中脚本命令
+##### 配置`package.json`中脚本命令
 
 ```json
 {
@@ -199,4 +199,29 @@ services:
 ```
 
 具体代码见[uploadOSS](https://github.com/Merlin218/learn-deploy/tree/master/single-app-deploy/scripts/uploadOSS.mjs)
+
+#### 方式三：使用`rclone`按需上传
+
+`Rclone`，是使用 Go 语言编写的一款高性能云文件同步的命令行工具，可理解为云存储版本的 rsync，或者更高级的 ossutil。
+
+- 按需复制，每次仅仅复制变更的文件
+- 断点续传
+- 压缩传输
+
+> 选择阿里云 oss 作为云存储时，配置时其 type 为 s3，其 provider 为 Alibaba，[详见文档](https://rclone.org/s3/#alibaba-oss)
+
+##### 配置命令
+
+```json
+{
+  "scripts": {
+    "oss:rclone": "rclone copy --exclude 'assets/**' --header 'Cache-Control: no-cache' dist alioss:/single-app-deploy --progress && rclone copy --header 'Cache-Control: no-cache' dist/assets alioss:/single-app-deploy --progress",
+  }
+}
+```
+
+### 删除OSS冗余资源
+
+具体代码见[deleteOSS](https://github.com/Merlin218/learn-deploy/tree/master/single-app-deploy/scripts/deleteOSS.mjs)
+
 

@@ -17,6 +17,8 @@
     "build": "vite build",
     "dev": "vite",
     "oss:cli": "ossutil cp -rf --meta Cache-Control:no-cache dist oss://single-app-deploy/ && ossutil cp -rf --meta Cache-Control:max-age=31536000 dist/assets oss://single-app-deploy/assets",
+    "oss:delete": "node ./scripts/deleteOSS.mjs -t dist -b single-app-deploy -r oss-cn-hangzhou",
+    "oss:rclone": "rclone copy --exclude 'assets/**' --header 'Cache-Control: no-cache' dist alioss:/single-app-deploy --progress && rclone copy --header 'Cache-Control: no-cache' dist/assets alioss:/single-app-deploy --progress",
     "oss:script": "node ./scripts/uploadOSS.mjs -t dist -h dist/assets -b single-app-deploy -r oss-cn-hangzhou",
     "preview": "vite preview"
   },
