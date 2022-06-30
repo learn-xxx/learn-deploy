@@ -1,0 +1,19 @@
+version: "3"
+
+services:
+  traefik: 
+    image: traefik:v2.5
+    command: --api.insecure=true --providers.docker
+    ports:
+      - "8000:80"
+      - "443:443"
+      - "8080:8080"
+    volumes:
+      # 终极配置文件，已经配置好LTS、Access Log等。后续继续学习。
+      - ./traefik.toml:/etc/traefik/traefik.toml
+      - ./acme.json:/acme.json
+      - ./log:/log
+      - /var/run/docker.sock:/var/run/docker.sock
+    container_name: traefik
+    env_file: .env
+
