@@ -1,17 +1,21 @@
-version: '3'
+version: "3"
 
 services:
   # 改镜像会暴露出自身的 `header` 信息
-  whoami:
-    image: containous/whoami
+  blog:
+    build:
+        context: .
+        dockerfile: blog.Dockerfile
     labels:
       # 设置Host 为 localhost 进行域名访问
-      - "traefik.http.routers.whoami.rule=Host(`localhost`)"
-
+      - traefik.http.routers.blog.rule=Host(`blog.cra.merlin218.top`)
+      # 开启HTTPS
+      - traefik.http.routers.blog.tls=true
+      - traefik.http.routers.blog.tls.certresolver=le
 # 使用已存在的 traefik 的 network
 # 默认启动在80端口，而traefik的docker-compose配置文件中80端口映射到8000
 # 所以访问localhost:8000可以访问到 whoami 服务
 networks:
   default:
     external:
-      name: traefik-manage_default
+      name: traefik_default

@@ -1,0 +1,15 @@
+{
+  "devDependencies": {
+    "vitepress": "^1.0.0-alpha.4",
+    "vue": "^3.2.37"
+  },
+  "license": "MIT",
+  "main": "index.js",
+  "name": "blog",
+  "scripts": {
+    "build": "vitepress build docs",
+    "dev": "vitepress dev docs",
+    "serve": "vitepress serve docs"
+  },
+  "version": "1.0.0"
+}

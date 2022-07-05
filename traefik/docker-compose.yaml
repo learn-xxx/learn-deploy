@@ -14,6 +14,5 @@ services:
       - ./acme.json:/acme.json
       - ./log:/log
       - /var/run/docker.sock:/var/run/docker.sock
-    container_name: traefik
     env_file: .env
 
