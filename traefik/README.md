@@ -46,7 +46,6 @@ docker-compose up --build
 version: '3'
 
 services:
-  # 改镜像会暴露出自身的 `header` 信息
   whoami:
     image: containous/whoami
     labels:
@@ -70,7 +69,7 @@ networks:
 
 ## 终极配置文件
 
-终极配置文件已经配置好了 LTS、Access Log 等，但是细节就不讲了，直接上配置，完整配置文件详见 `[traefik.toml](https://github.com/Merlin218/learn-deploy/tree/master/traefik/traefik.toml)`。
+终极配置文件已经配置好了 LTS、Access Log 等，但是细节就不讲了，直接上配置，完整配置文件详见 [traefik.toml](https://github.com/Merlin218/learn-deploy/tree/master/traefik/traefik.toml)。
 
 ## 开启多服务多域名
 
@@ -82,7 +81,6 @@ networks:
 version: "3"
 
 services:
-  # 改镜像会暴露出自身的 `header` 信息
   blog:
     build:
         context: .
