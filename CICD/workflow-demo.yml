@@ -1,0 +1,31 @@
+# 脚本名称
+name: github action
+
+on:
+  # 当master分支代码发生变化时。触发工作流
+  push:
+    branches:
+      - master
+  # 当feature/**分支发生变更时，进行Preview功能分支部署
+  pull_request:
+    types:
+      # 当新建一个pr时
+      - opened
+      # 当提交pr的分支，未合并前有新的commit时
+      - synchronize
+    branches:
+      - 'feature/**'
+  # 在每天凌晨 0:30 处理一些事情，比如清理多余的 OSS 资源，清理多余的功能分支 Preview
+  schedule:
+    - cron: '30 8 * * *'
+
+jobs:
+  test:
+    # 使用Ubuntu机器，可以自建runner
+    runs-on: self-hosted
+    steps:
+      # 切出代码，拉取最新代码
+      - uses: actions/checkout@v2
+      # 执行命令
+      - run: docker-compose up -d
+
